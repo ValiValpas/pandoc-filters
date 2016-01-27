@@ -19,8 +19,8 @@ main = toJSONFilter pandocSeq
 {-main = putStrLn "a"-}
 
 pandocSeq :: (Maybe Format) -> (Pandoc -> IO Pandoc)
-pandocSeq (Just (Format "latex")) = (walkM fixlink) >=> baseSeq >=> (walkM latexRef)
-pandocSeq (Just (Format "native")) = (walkM fixlink) >=> baseSeq >=> (walkM latexRef)
+pandocSeq (Just (Format "latex")) = (walkM fixlink) >=> (walkM fixeqlink) >=> baseSeq >=> (walkM latexRef)
+pandocSeq (Just (Format "native")) = (walkM fixlink) >=> (walkM fixeqlink) >=> baseSeq >=> (walkM latexRef)
 {-pandocSeq _ = return -}
 pandocSeq _ = baseSeq
 
@@ -35,6 +35,12 @@ fixlink (Link attrs txt ('#':ident, x))
     | Just subident <- stripPrefix "tab:" ident = return reflink 
     where reflink = Link attrs [RawInline (Format "latex") ("\\ref*{" ++ ident ++ "}")] ("#" ++ ident, x)
 fixlink x = return x
+
+fixeqlink :: Inline -> IO Inline
+fixeqlink (Link attrs txt ('#':ident, x)) 
+    | Just subident <- stripPrefix "eq:" ident = return reflink 
+    where reflink = Link attrs [RawInline (Format "latex") ("\\eqref{" ++ ident ++ "}")] ("#" ++ ident, x)
+fixeqlink x = return x
 
 -- read attributes into a div
 floatAttribute:: Block -> IO Block
