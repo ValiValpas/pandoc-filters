@@ -15,7 +15,7 @@ import Text.Pandoc.Writers.LaTeX
 import Data.List (stripPrefix)
 
 sidefig :: Block -> Block
-sidefig (Div (ident, classes, _) [Para [Image caps (src, _)]]) 
+sidefig (Div (ident, classes, _) [Para [Image attrs caps (src, _)]]) 
     | "sideways" `elem` classes = Para [
         RawInline (Format "latex") "\\begin{sidewaysfigure}\n\\centering\n",
         RawInline (Format "latex") ("\\includegraphics{" ++ src ++ "}\n"),

@@ -44,11 +44,6 @@ fixeqlink x = return x
 
 -- read attributes into a div
 floatAttribute:: Block -> IO Block
-floatAttribute (Para ((Image attrs caps (src,_)):(Str ('{':'#':label)):rest)) = 
-    return (Div ((delete '}' label), classes, []) [Para [Image attrs caps' (src, "fig:")]])
-    where
-        caps' = caps
-        classes = [delete '}' str | Str str <- rest]
 floatAttribute (Table caps aligns widths headers rows)
     | attribCaps /= [] = return (Div (ident, classes', []) [Table goodCaps aligns widths headers rows])
     where
@@ -67,9 +62,8 @@ floatAttribute x = return x
 
 -- add \label to image captions
 latexRef :: Block -> IO Block
-latexRef (Div (ident, classes, kvs) [Para [Image attrs caps src]]) = 
-    return (Div (ident, classes, kvs)
-        [Para [Image attrs (caps ++ [RawInline (Format "tex") ("\\label{" ++ ident ++ "}")]) src]])
+latexRef (Para [Image (ident, classes, kvs) caps src]) = 
+    return (Para [Image (ident, classes, kvs) (caps ++ [RawInline (Format "tex") ("\\label{" ++ ident ++ "}")]) src])
 latexRef (Div (ident, classes, kvs) [Table caps aligns widths headers rows]) = 
     return (Div (ident, classes, kvs)
         [Table (caps ++ [RawInline (Format "tex") ("\\label{" ++ ident ++ "}")]) aligns widths headers rows])
