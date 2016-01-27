@@ -30,16 +30,16 @@ baseSeq = (walkM floatAttribute)
 
 -- fix latex internal ref's
 fixlink :: Inline -> IO Inline
-fixlink (Link txt ('#':ident, x)) 
+fixlink (Link attrs txt ('#':ident, x))
     | Just subident <- stripPrefix "fig:" ident = return reflink 
     | Just subident <- stripPrefix "tab:" ident = return reflink 
-    where reflink = Link [RawInline (Format "latex") ("\\ref*{" ++ ident ++ "}")] ("#" ++ ident, x)
+    where reflink = Link attrs [RawInline (Format "latex") ("\\ref*{" ++ ident ++ "}")] ("#" ++ ident, x)
 fixlink x = return x
 
 -- read attributes into a div
 floatAttribute:: Block -> IO Block
-floatAttribute (Para ((Image caps (src,_)):(Str ('{':'#':label)):rest)) = 
-    return (Div ((delete '}' label), classes, []) [Para [Image caps' (src, "fig:")]])
+floatAttribute (Para ((Image attrs caps (src,_)):(Str ('{':'#':label)):rest)) = 
+    return (Div ((delete '}' label), classes, []) [Para [Image attrs caps' (src, "fig:")]])
     where
         caps' = caps
         classes = [delete '}' str | Str str <- rest]
@@ -61,9 +61,9 @@ floatAttribute x = return x
 
 -- add \label to image captions
 latexRef :: Block -> IO Block
-latexRef (Div (ident, classes, kvs) [Para [Image caps src]]) = 
+latexRef (Div (ident, classes, kvs) [Para [Image attrs caps src]]) = 
     return (Div (ident, classes, kvs)
-        [Para [Image (caps ++ [RawInline (Format "tex") ("\\label{" ++ ident ++ "}")]) src]])
+        [Para [Image attrs (caps ++ [RawInline (Format "tex") ("\\label{" ++ ident ++ "}")]) src]])
 latexRef (Div (ident, classes, kvs) [Table caps aligns widths headers rows]) = 
     return (Div (ident, classes, kvs)
         [Table (caps ++ [RawInline (Format "tex") ("\\label{" ++ ident ++ "}")]) aligns widths headers rows])

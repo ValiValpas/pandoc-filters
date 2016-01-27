@@ -19,11 +19,11 @@ import Data.List (stripPrefix)
 -- instead, we're going to rely on a post-processing hook in the tex file for a python script.
 -- hackish approach, but will save a lot of heartache
 sidefig :: Block -> Block
-sidefig (Div (ident, classes, kvs) [Para [Image caps (src, src2)]]) 
+sidefig (Div (ident, classes, kvs) [Para [Image attrs caps (src, src2)]]) 
     | "sideways" `elem` classes =
         (Div (ident, classes, kvs) [
             RawBlock (Format "latex") "%% @replace-next-environment figure sidewaysfigure",
-            Para [Image caps (src, src2)] ])
+            Para [Image attrs caps (src, src2)] ])
 sidefig (Div (ident, classes, kvs) [Table caps aligns widths headers rows])
     | "sideways" `elem` classes =
         (Div (ident, classes, kvs) [
