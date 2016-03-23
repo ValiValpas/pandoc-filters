@@ -19,8 +19,8 @@ main = toJSONFilter pandocSeq
 {-main = putStrLn "a"-}
 
 pandocSeq :: (Maybe Format) -> (Pandoc -> IO Pandoc)
-pandocSeq (Just (Format "latex")) = (walkM fixlink) >=> (walkM fixeqlink) >=> baseSeq >=> (walkM latexRef)
-pandocSeq (Just (Format "native")) = (walkM fixlink) >=> (walkM fixeqlink) >=> baseSeq >=> (walkM latexRef)
+pandocSeq (Just (Format "latex")) = (walkM fixlink) >=> (walkM fixcite) >=> baseSeq >=> (walkM latexRef)
+pandocSeq (Just (Format "native")) = (walkM fixlink) >=> (walkM fixcite) >=> baseSeq >=> (walkM latexRef)
 {-pandocSeq _ = return -}
 pandocSeq _ = baseSeq
 
@@ -38,11 +38,15 @@ fixlink (Link attrs txt ('#':ident, x))
     where reflink = Link attrs [RawInline (Format "latex") ("\\autoref{" ++ ident ++ "}")] ("#" ++ ident, x)
 fixlink x = return x
 
-fixeqlink :: Inline -> IO Inline
-fixeqlink (Link attrs txt ('#':ident, x)) 
-    | Just subident <- stripPrefix "eq:" ident = return reflink 
-    where reflink = Link attrs [RawInline (Format "latex") ("\\eqref{" ++ ident ++ "}")] ("#" ++ ident, x)
-fixeqlink x = return x
+-- fix latex citations
+fixcite :: Inline -> IO Inline
+fixcite (Cite [Citation ident prefix suffix mode num hash] [Str x])
+    | Just subident <- stripPrefix "fig:" ident = return reflink 
+    | Just subident <- stripPrefix "tab:" ident = return reflink 
+    | Just subident <- stripPrefix "th:" ident = return reflink 
+    | Just subident <- stripPrefix "sec:" ident = return reflink 
+    where reflink = Link nullAttr [RawInline (Format "latex") ("\\autoref{" ++ ident ++ "}")] ("#" ++ ident, "")
+fixcite x = return x
 
 -- read attributes into a div
 floatAttribute:: Block -> IO Block
