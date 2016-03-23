@@ -35,6 +35,7 @@ fixlink (Link attrs txt ('#':ident, x))
     | Just subident <- stripPrefix "tab:" ident = return reflink 
     | Just subident <- stripPrefix "th:" ident = return reflink 
     | Just subident <- stripPrefix "sec:" ident = return reflink 
+    | Just subident <- stripPrefix "eq:" ident = return reflink 
     where reflink = Link attrs [RawInline (Format "latex") ("\\autoref{" ++ ident ++ "}")] ("#" ++ ident, x)
 fixlink x = return x
 
@@ -45,6 +46,7 @@ fixcite (Cite [Citation ident prefix suffix mode num hash] [Str x])
     | Just subident <- stripPrefix "tab:" ident = return reflink 
     | Just subident <- stripPrefix "th:" ident = return reflink 
     | Just subident <- stripPrefix "sec:" ident = return reflink 
+    | Just subident <- stripPrefix "eq:" ident = return reflink 
     where reflink = Link nullAttr [RawInline (Format "latex") ("\\autoref{" ++ ident ++ "}")] ("#" ++ ident, "")
 fixcite x = return x
 
