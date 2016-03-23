@@ -33,7 +33,7 @@ fixlink :: Inline -> IO Inline
 fixlink (Link attrs txt ('#':ident, x))
     | Just subident <- stripPrefix "fig:" ident = return reflink 
     | Just subident <- stripPrefix "tab:" ident = return reflink 
-    where reflink = Link attrs [RawInline (Format "latex") ("\\ref*{" ++ ident ++ "}")] ("#" ++ ident, x)
+    where reflink = Link attrs [RawInline (Format "latex") ("\\autoref{" ++ ident ++ "}")] ("#" ++ ident, x)
 fixlink x = return x
 
 fixeqlink :: Inline -> IO Inline
